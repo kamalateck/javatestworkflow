@@ -1,0 +1,62 @@
+name: Java PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  validate:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Get source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # 2. Setup Java
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+
+      # 3. Check code formatting (spaces, indentation, brackets)
+      - name: Check Code Formatting
+        run: |
+          mvn spotless:check
+
+
+      # 4. Compile code
+      - name: Compile Code
+        run: |
+          mvn compile
+
+
+      # 5. Run Unit Tests
+      - name: Run Unit Tests
+        run: |
+          mvn test
+
+
+      # 6. Generate Test Coverage
+      - name: Check Test Coverage
+        run: |
+          mvn jacoco:check
+
+
+      # 7. Static Code Analysis
+      - name: Run Code Quality Check
+        run: |
+          mvn checkstyle:check
+
+
+      # 8. Security Dependency Scan
+      - name: Security Scan
+        run: |
+          mvn org.owasp:dependency-check-maven:check
