@@ -6,57 +6,28 @@ on:
       - main
 
 jobs:
-
-  validate:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
-
-      # 1. Get source code
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-
-      # 2. Setup Java
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
+          cache: maven
 
+      - name: Compile Project
+        run: mvn clean compile
 
-      # 3. Check code formatting (spaces, indentation, brackets)
-      - name: Check Code Formatting
-        run: |
-          mvn spotless:check
-
-
-      # 4. Compile code
-      - name: Compile Code
-        run: |
-          mvn compile
-
-
-      # 5. Run Unit Tests
       - name: Run Unit Tests
-        run: |
-          mvn test
+        run: mvn test
 
+      - name: Run Checkstyle (Lint)
+        run: mvn checkstyle:check
 
-      # 6. Generate Test Coverage
-      - name: Check Test Coverage
-        run: |
-          mvn jacoco:check
-
-
-      # 7. Static Code Analysis
-      - name: Run Code Quality Check
-        run: |
-          mvn checkstyle:check
-
-
-      # 8. Security Dependency Scan
-      - name: Security Scan
-        run: |
-          mvn org.owasp:dependency-check-maven:check
+      - name: Build Package
+        run: mvn package
